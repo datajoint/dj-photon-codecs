@@ -42,7 +42,7 @@ schema = dj.Schema('calcium_imaging')
 @schema
 class Recording(dj.Manual):
     definition = """
-    recording_id : int
+    recording_id : uint16
     ---
     movie : <photon@imaging>  # Photon-limited movie
     """
