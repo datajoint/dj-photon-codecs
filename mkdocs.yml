@@ -1,0 +1,91 @@
+site_name: dj-photon-codecs
+site_description: DataJoint codec for photon-limited movies with Anscombe variance stabilization
+site_author: DataJoint Inc.
+repo_name: datajoint/dj-photon-codecs
+repo_url: https://github.com/datajoint/dj-photon-codecs
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            docstring_style: numpy
+            merge_init_into_class: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - tables
+  - footnotes
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - Configuration: getting-started/configuration.md
+  - User Guide:
+      - Overview: user-guide/overview.md
+      - Anscombe Transform: user-guide/anscombe-transform.md
+      - Compression: user-guide/compression.md
+      - Storage Structure: user-guide/storage-structure.md
+      - Best Practices: user-guide/best-practices.md
+  - Examples:
+      - Calcium Imaging: examples/calcium-imaging.md
+      - Low-Light Microscopy: examples/low-light.md
+  - API Reference: api/reference.md
+  - Contributing: contributing.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/datajoint/dj-photon-codecs
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/dj-photon-codecs/
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

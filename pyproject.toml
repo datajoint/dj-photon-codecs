@@ -33,12 +33,14 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
+    "mkdocs-material>=9.0",
+    "mkdocstrings[python]>=0.24",
 ]
 
 [project.urls]
 Homepage = "https://github.com/datajoint/dj-photon-codecs"
 Repository = "https://github.com/datajoint/dj-photon-codecs"
-Documentation = "https://docs.datajoint.com"
+Documentation = "https://dj-photon-codecs.readthedocs.io/"
 "Bug Tracker" = "https://github.com/datajoint/dj-photon-codecs/issues"
 
 [project.entry-points."datajoint.codecs"]
