@@ -1,0 +1,64 @@
+[project]
+name = "dj-photon-codecs"
+version = "0.1.0"
+description = "DataJoint codec for photon-limited movies with Anscombe transformation and compression"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Dimitri Yatsenko", email = "dimitri@datajoint.com"},
+    {name = "Davis Bennett", email = "davis.v.bennett@gmail.com"},
+]
+keywords = ["datajoint", "photon", "anscombe", "imaging", "codec"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "datajoint>=2.0.0a22",
+    "zarr>=2.0",
+    "numpy>=1.20",
+    "anscombe-transform>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/datajoint/dj-photon-codecs"
+Repository = "https://github.com/datajoint/dj-photon-codecs"
+Documentation = "https://docs.datajoint.com"
+"Bug Tracker" = "https://github.com/datajoint/dj-photon-codecs/issues"
+
+[project.entry-points."datajoint.codecs"]
+photon = "dj_photon_codecs:PhotonCodec"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=dj_photon_codecs --cov-report=term-missing"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]  # line too long (handled by formatter)
