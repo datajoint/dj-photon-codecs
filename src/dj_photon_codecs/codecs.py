@@ -97,6 +97,7 @@ class PhotonCodec(SchemaCodec):
     """
 
     name = "photon"
+    CODEC_VERSION = "1.0"  # Data format version for backward compatibility
 
     def validate(self, value: Any) -> None:
         """
@@ -151,7 +152,7 @@ class PhotonCodec(SchemaCodec):
         Returns
         -------
         dict
-            Metadata stored in database: path, store, shape, dtype, transform info.
+            Metadata stored in database: path, store, codec_version, shape, dtype, transform.
 
         Raises
         ------
@@ -195,6 +196,8 @@ class PhotonCodec(SchemaCodec):
 
             # Store transform parameters in Zarr attributes
             z = zarr.open(store_map, mode="r+")
+            z.attrs["codec_version"] = self.CODEC_VERSION
+            z.attrs["codec_name"] = self.name
             z.attrs["anscombe_gain"] = 1.0
             z.attrs["anscombe_offset"] = 0.0
             z.attrs["anscombe_variance"] = 0.0
@@ -204,6 +207,7 @@ class PhotonCodec(SchemaCodec):
             return {
                 "path": path,
                 "store": store_name,
+                "codec_version": self.CODEC_VERSION,
                 "shape": list(value.shape),
                 "dtype": str(transformed.dtype),
                 "transform": "anscombe",
@@ -253,7 +257,22 @@ class PhotonCodec(SchemaCodec):
             store_map = backend.get_fsmap(stored["path"])
 
             # Open Zarr array (read-only)
-            return zarr.open(store_map, mode="r")
+            z = zarr.open(store_map, mode="r")
+
+            # Check codec version for backward compatibility
+            # Priority: Zarr attrs > DB metadata > default "1.0"
+            version = z.attrs.get(
+                "codec_version", stored.get("codec_version", "1.0")
+            )
+
+            # All v1.x versions are compatible
+            if version.startswith("1."):
+                return z
+            else:
+                raise DataJointError(
+                    f"Unsupported photon codec version: {version}. "
+                    f"Upgrade dj-photon-codecs or migrate data."
+                )
 
         except Exception as e:
             raise DataJointError(f"Failed to decode photon movie: {e}") from e
