@@ -3,7 +3,7 @@ name = "dj-photon-codecs"
 version = "0.1.0"
 description = "DataJoint codec for photon-limited movies with Anscombe transformation and compression"
 readme = "README.md"
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [
