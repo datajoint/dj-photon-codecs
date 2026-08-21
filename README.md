@@ -4,7 +4,7 @@ DataJoint codec for photon-limited movies with Anscombe variance stabilization a
 
 [![PyPI version](https://badge.fury.io/py/dj-photon-codecs.svg)](https://pypi.org/project/dj-photon-codecs/)
 [![Documentation](https://readthedocs.org/projects/dj-photon-codecs/badge/?version=latest)](https://dj-photon-codecs.readthedocs.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Overview
 
@@ -129,4 +129,4 @@ mkdocs serve
 
 ## License
 
-MIT License. Copyright (c) 2026 DataJoint Inc.
+Apache License 2.0. Copyright (c) 2026 DataJoint Inc.
