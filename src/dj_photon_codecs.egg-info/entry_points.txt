@@ -1,0 +1,2 @@
+[datajoint.codecs]
+photon = dj_photon_codecs:PhotonCodec

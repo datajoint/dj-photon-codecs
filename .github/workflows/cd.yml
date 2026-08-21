@@ -1,0 +1,60 @@
+name: CD
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - published
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 3
+
+jobs:
+  dist:
+    name: Distribution build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # v3 ships Twine 7, which understands packaging metadata 2.4/2.5 — what a
+      # PEP 639 SPDX license declaration produces. v2 bundles Twine 6 and fails
+      # `twine check --strict`. v3 no longer force-tags majors, so pin in full.
+      - uses: hynek/build-and-inspect-python-package@v3.0.1
+
+  publish:
+    needs: [dist]
+    name: Publish to PyPI
+    environment: pypi
+    permissions:
+      # Trusted publishing: PyPI verifies this workflow's OIDC identity, so no
+      # API token is stored anywhere. Requires a pending publisher configured on
+      # PyPI for this project before the first release.
+      id-token: write
+      attestations: write
+      contents: read
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: Packages
+          path: dist
+
+      - name: Generate artifact attestation for sdist and wheel
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: "dist/*"
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
