@@ -1,9 +1,9 @@
 [project]
 name = "dj-photon-codecs"
-version = "0.1.0"
 description = "DataJoint codec for photon-limited movies with Anscombe transformation and compression"
 readme = "README.md"
 requires-python = ">=3.10"
+dynamic = ["version"]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [
@@ -49,8 +49,8 @@ Documentation = "https://dj-photon-codecs.readthedocs.io/"
 photon = "dj_photon_codecs:PhotonCodec"
 
 [build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.27", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -66,3 +66,12 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
 ignore = ["E501"]  # line too long (handled by formatter)
+
+# The git tag is the single source of truth for the version — mirrors dj-zarr-codecs.
+# The build hook writes _version.py, which the package imports, so nothing declares a
+# version twice and nothing needs bumping in a pull request.
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/dj_photon_codecs/_version.py"

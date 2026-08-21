@@ -2,5 +2,5 @@
 
 from .codecs import PhotonCodec
 
-__version__ = "0.1.0"
-__all__ = ["PhotonCodec"]
+from ._version import version as __version__
+__all__ = ["PhotonCodec", "__version__"]
