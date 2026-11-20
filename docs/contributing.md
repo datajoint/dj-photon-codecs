@@ -162,7 +162,6 @@ Before submitting:
 - [ ] All tests pass
 - [ ] Documentation updated
 - [ ] Docstrings added for public APIs (NumPy style)
-- [ ] Changelog entry added (if applicable)
 - [ ] PR description explains changes clearly
 
 ## Testing Guidelines
@@ -265,49 +264,53 @@ When adding user guide documentation:
 - Link to related documentation
 - Test all code examples
 
-## Release Process
+## Releasing
 
-(For maintainers)
+A release is an annotated tag `vX.Y.Z` on `main` whose message is the release
+notes. There is no changelog file: `git show vX.Y.Z` prints a release's notes,
+and its GitHub release shows the same text.
 
-### 1. Update Version
+1. Collect the pull requests merged since the last release (for the first
+   release, leave out `--search`):
 
-Edit `pyproject.toml`:
+    ```bash
+    gh pr list --state merged --base main --search "merged:>YYYY-MM-DD" --json number,title
+    ```
 
-```toml
-version = "0.2.0"
-```
+2. Write `notes.md`. The first line is one sentence that says what the release
+   is about. Then, after a blank line, the changes grouped by area, each naming
+   its pull request. Put anything users must act on first.
 
-### 2. Update Changelog
+    ```markdown
+    Compressed movies keep their original dtype on fetch.
 
-Add release notes to `CHANGELOG.md`:
+    ## Codec
 
-```markdown
-## [0.2.0] - 2024-01-15
+    - `<photon>` restores the stored dtype on decode (#123)
+    ```
 
-### Added
-- Custom compression settings
-- Support for multi-plane imaging
+3. Tag the release commit on `main` and push the tag:
 
-### Fixed
-- Edge case in validation
+    ```bash
+    git tag -a vX.Y.Z --cleanup=verbatim -F notes.md && git push origin vX.Y.Z
+    ```
 
-### Changed
-- Improved chunking strategy
-```
+    `--cleanup=verbatim` keeps lines that start with `#`, such as Markdown
+    headings, which git would otherwise drop as comments.
 
-### 3. Tag Release
+Pushing the tag runs the
+[CD workflow](https://github.com/datajoint/dj-photon-codecs/blob/main/.github/workflows/cd.yml).
+It checks that the tag is annotated and on `main`, and refuses a lightweight tag
+(one made without `-a`); builds and inspects the wheel and sdist; publishes the
+package built at the tag through PyPI trusted publishing; and creates the GitHub
+release, with the tag's message as its notes and the wheel and sdist attached.
 
-```bash
-git tag -a v0.2.0 -m "Release v0.2.0"
-git push origin v0.2.0
-```
-
-### 4. Build and Upload
-
-```bash
-python -m build
-python -m twine upload dist/*
-```
+The version comes from the tag: hatch-vcs derives it at build time, so there is
+no version number to edit, and the workflow checks that the built files carry
+the tag's version. If a job fails after the tag is pushed, fix the cause and
+re-run the failed jobs from the workflow run; a fix that needs a new commit is
+released under the next version. Never move or delete a pushed tag: the version
+on PyPI and the GitHub release are tied to it.
 
 ## Getting Help
 
