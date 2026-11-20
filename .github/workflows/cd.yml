@@ -2,8 +2,9 @@ name: CD
 
 # Pull requests and pushes to main build the package. A release is an annotated
 # tag vX.Y.Z on main whose message is the release notes: pushing it checks the
-# tag, publishes the package built at the tag (hatch-vcs takes the version from
-# the tag), and creates the GitHub release with the tag's message as its notes.
+# tag, runs the CI workflow, publishes the package built at the tag (hatch-vcs
+# takes the version from the tag), and creates the GitHub release with the
+# tag's message as its notes.
 #
 # PyPI trusted publishing is bound to this file's name and to the pypi
 # environment, so neither can be renamed without updating PyPI.
@@ -33,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -51,7 +52,7 @@ jobs:
       publish: ${{ steps.check.outputs.publish }}
 
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -60,10 +61,14 @@ jobs:
         id: check
         run: .github/scripts/check_release_tag.sh "$GITHUB_REF_NAME" main
 
+  ci:
+    name: CI
+    needs: [check]
+    if: needs.check.outputs.publish == 'true'
+    uses: ./.github/workflows/ci.yml
+
   publish:
-    # The repository has no test suite yet, so the release gate is the tag
-    # check and the distribution build, which inspects the wheel and sdist.
-    needs: [dist, check]
+    needs: [dist, check, ci]
     name: Publish to PyPI
     environment: pypi
     permissions:
@@ -111,7 +116,7 @@ jobs:
       TAG: ${{ github.ref_name }}
 
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
