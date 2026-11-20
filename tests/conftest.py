@@ -8,24 +8,30 @@ import pytest
 logger = logging.getLogger(__name__)
 
 
-def _is_docker_available() -> bool:
-    """Check that a Docker daemon is running and can run Linux containers."""
+def _docker_unavailable() -> str | None:
+    """Return why Docker cannot run Linux containers here, or None when it can."""
     try:
         result = subprocess.run(
             ["docker", "info", "--format", "{{.OSType}}"],
             capture_output=True,
             text=True,
-            timeout=5,
+            timeout=30,
             check=False,
         )
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        return False
+    except FileNotFoundError:
+        return "Docker is not installed"
+    except subprocess.TimeoutExpired:
+        return "Docker did not respond"
+    if result.returncode != 0:
+        return f"Docker is not running: {result.stderr.strip()}"
     # GitHub's Windows runners run Docker with Windows containers, which
     # cannot start the Linux MySQL image, so the database tests skip there.
-    return result.returncode == 0 and result.stdout.strip() == "linux"
+    if result.stdout.strip() != "linux":
+        return f"Docker runs {result.stdout.strip()} containers, not Linux"
+    return None
 
 
-DOCKER_AVAILABLE = _is_docker_available()
+DOCKER_UNAVAILABLE = _docker_unavailable()
 
 
 @pytest.fixture
@@ -41,8 +47,8 @@ def file_store(tmp_path) -> Generator[str, None, None]:
 @pytest.fixture(scope="session")
 def mysql_container():
     """Start a MySQL container for the test session."""
-    if not DOCKER_AVAILABLE:
-        pytest.skip("Docker is not available")
+    if DOCKER_UNAVAILABLE:
+        pytest.skip(DOCKER_UNAVAILABLE)
     from testcontainers.community.mysql import MySqlContainer
 
     container = MySqlContainer(
