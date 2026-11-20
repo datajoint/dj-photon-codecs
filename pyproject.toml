@@ -2,7 +2,7 @@
 name = "dj-photon-codecs"
 description = "DataJoint codec for photon-limited movies with Anscombe transformation and compression"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["version"]
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -15,7 +15,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -24,17 +23,25 @@ classifiers = [
 ]
 
 dependencies = [
-    "datajoint>=2.0.0a22",
-    "zarr>=2.0",
-    "numpy>=1.20",
+    # 2.3.4 passes the explicit `context` argument to encode and decode.
+    "datajoint>=2.3.4",
+    # anscombe-transform 1.0 is a Zarr 3 filter and needs zarr>=3.1.2.
+    "zarr>=3.1.2",
+    "numpy>=1.25",
     "anscombe-transform>=1.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
+test = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "testcontainers[mysql]>=4.14.0",
+]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "ruff>=0.1.0",
+    { include-group = "test" },
+    "ruff>=0.6",
+]
+docs = [
     "mkdocs-material>=9.0",
     "mkdocstrings[python]>=0.24",
 ]
@@ -52,16 +59,13 @@ photon = "dj_photon_codecs:PhotonCodec"
 requires = ["hatchling>=1.27", "hatch-vcs"]
 build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --cov=dj_photon_codecs --cov-report=term-missing"
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]

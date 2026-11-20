@@ -47,23 +47,22 @@ class Recording(dj.Manual):
     movie : <photon@imaging>  # Photon-limited movie
     """
 
-# Insert raw photon counts
-movie = np.random.poisson(lam=10, size=(1000, 512, 512))
+# Insert raw photon counts (non-negative integers up to 32767)
+movie = np.random.poisson(lam=10, size=(1000, 512, 512)).astype(np.uint16)
 Recording.insert1({'recording_id': 1, 'movie': movie})
 
-# Fetch returns Zarr array (Anscombe-transformed)
+# Fetch returns a read-only Zarr array; reading it applies the inverse transform
 zarr_array = (Recording & {'recording_id': 1}).fetch1('movie')
-frame = zarr_array[100]  # Efficient frame access
+frame = zarr_array[100]  # photon counts of one frame
 ```
 
-### Apply Inverse Transform
+The movie is stored as a Zarr array whose chunks pass through the
+[anscombe-transform](https://github.com/datajoint/anscombe-transform) filter
+before Blosc/Zstd compression. The filter re-quantizes the counts with a step
+below the photon shot noise, so the fetched counts match the inserted ones
+within that step.
 
-```python
-from anscombe import generalized_inverse_anscombe
-
-# Recover original photon counts
-original = generalized_inverse_anscombe(zarr_array[:])
-```
+Requires `datajoint>=2.3.4` and Python 3.11 or later.
 
 ## Features
 
@@ -72,7 +71,7 @@ original = generalized_inverse_anscombe(zarr_array[:])
 - **Temporal chunking** optimized for sequential frame access
 - **Schema-addressed paths** mirroring database structure
 - **Lazy loading** - access frames without loading entire movie
-- **Invertible transformation** - mathematically lossless
+- **Transparent inverse** - fetched arrays read back as photon counts
 
 ## When to Use
 
@@ -105,13 +104,13 @@ Contributions are welcome! See our [Contributing Guide](https://dj-photon-codecs
 # Development setup
 git clone https://github.com/datajoint/dj-photon-codecs.git
 cd dj-photon-codecs
-pip install -e ".[dev]"
+uv sync
 
-# Run tests
-pytest
+# Run tests (the database test needs Docker and skips without it)
+uv run pytest
 
 # Build docs
-mkdocs serve
+uv run --group docs mkdocs serve
 ```
 
 ## Support
