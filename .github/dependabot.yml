@@ -9,10 +9,18 @@ updates:
         patterns:
           - "*"
 
+  # pyproject.toml and uv.lock
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      python:
+        patterns:
+          - "*"
+
   - package-ecosystem: "pip"
-    directories:
-      - "/"
-      - "/docs"
+    directory: "/docs"
     schedule:
       interval: "weekly"
     groups:
